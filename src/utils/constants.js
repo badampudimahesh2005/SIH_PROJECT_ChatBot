@@ -1,0 +1,1 @@
+export const IMAGE='https://images.unsplash.com/photo-1698993026848-f67c1eb7f989?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZWR1Y2F0aW9uJTIwYmFja2dyb3VuZHxlbnwwfHwwfHx8MA%3D%3D';
