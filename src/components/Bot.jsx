@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
+import axios from "axios"; // Import axios for API requests
 import "../assets/styles/Bot.css";
 
 function Bot() {
   const [chatOpen, setChatOpen] = useState(false); // Initially hidden
   const [messages, setMessages] = useState([]);
   const [userInput, setUserInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false); // To show loading message
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -19,24 +21,21 @@ function Bot() {
     setChatOpen(!chatOpen);
   };
 
-  const sendMessage = () => {
-    if (userInput.trim() === "") return;
+  const handleSendMessage = async () => {
+    if (userInput.trim()) {
+      setMessages([...messages, { text: userInput, user: 'You' }]);
+      setUserInput('');
 
-    const newMessages = [...messages, { sender: "client", text: userInput }];
-    setMessages(newMessages);
+      // Fetch metadata from the backend API
+      const response = await fetch('/api/metadata');
+      const data = await response.json();
 
-    setTimeout(() => {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { sender: "bot", text: "Hello! How can I assist you?" },
-      ]);
-    }, 1000);
-
-    setUserInput("");
+      // Add bot response with metadata
+      setMessages([...messages, { text: userInput, user: 'You' }, { text: data.description, user: 'Bot' }]);
+    }
   };
 
   return (
-    
     <div className="app-container">
       <div className="bot-icon" onClick={toggleChat}>
         🤖 {/* You can replace this with an actual bot icon or image */}
@@ -46,19 +45,17 @@ function Bot() {
         <div className="chat-box">
           <div className="chat-header">
             <h3>Hi, this is Mia!</h3>
-            
           </div>
           <div className="chat-content">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`chat-message ${
-                  message.sender === "client" ? "client-message" : "bot-message"
-                }`}
-              >
-                {message.text}
-              </div>
-            ))}
+          {messages.map((msg, index) => (
+          <div key={index} className={`message ${msg.user}`}>
+            <p>{msg.text}</p>
+          </div>
+        ))}
+
+            {isLoading && (
+              <div className="chat-message bot-message">Loading...</div>
+            )}
             <div ref={messagesEndRef} />
           </div>
           <div className="chat-input">
@@ -67,9 +64,8 @@ function Bot() {
               placeholder="Type your message here"
               value={userInput}
               onChange={(e) => setUserInput(e.target.value)}
-              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
             />
-            <button onClick={sendMessage}>Send</button>
+            <button onClick={handleSendMessage}>Send</button>
           </div>
         </div>
       )}
@@ -78,3 +74,5 @@ function Bot() {
 }
 
 export default Bot;
+
+
